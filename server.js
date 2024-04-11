@@ -17,7 +17,7 @@ app.get('/fetch_solax_data_daily', async (req, res) => {
         const detailed_res = await axios.get(baseURL_solax + sites_list_endpoint, {
             params: {
                 tokenId: api_key_solax,
-                current: req.query.current ? req.query.current : currentPage;
+                current: req.query.current ? req.query.current : currentPage,
             }
         })
         res.send(detailed_res.data);
