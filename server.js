@@ -11,6 +11,15 @@ const collector_endpoint = process.env.collector_endpoint;
 const key = process.env.key;
 const keySecret = process.env.keySecret;
 
+app.get('/fetch_solax_data_daily', async (req, res) => {
+    try {
+        const data = await axios.get('https://www.solaxcloud.com/proxyApp/proxy/api/getComprehensiveInfo.do?tokenId=20240212195932736804090&current=1')
+        res.send(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error fetching data from Solis API');
+    }
+})
 app.get('/fetch_solis_data_daily', async (req, res) => {
     try {
         const body = JSON.stringify({
@@ -61,7 +70,7 @@ app.get('/fetch_solis_data_daily', async (req, res) => {
         console.error(error);
         res.status(500).send('Error fetching data from Solis API');
     }
-});
+})
 
 const port = process.env.port;
 app.listen(port, () => {
