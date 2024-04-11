@@ -4,22 +4,36 @@ const axios = require('axios');
 const crypto = require('crypto');
 
 const app = express();
-
-const baseURL_solis = process.env.baseURL_solis;
-const inverter_endpoint = process.env.inverter_endpoint;
-const collector_endpoint = process.env.collector_endpoint;
-const key = process.env.key;
-const keySecret = process.env.keySecret;
+// solax
+const baseURL_solax = 'https://www.solaxcloud.com/proxyApp/proxy/api';
+const sites_list_endpoint = '/getComprehensiveInfo.do'
+const site_endpoint = '/getRealtimeInfo.do';
+const api_key_solax = '20240212195932736804090';
+const currentPage = 1;
 
 app.get('/fetch_solax_data_daily', async (req, res) => {
+    console.error('query=' + req.query)
     try {
-        const detailed_res = await axios.get('https://www.solaxcloud.com/proxyApp/proxy/api/getComprehensiveInfo.do?tokenId=20240212195932736804090&current=1')
+        const detailed_res = await axios.get(baseURL_solax + sites_list_endpoint, {
+            params: {
+                tokenId: api_key_solax,
+                current: req.query.current ? req.query.current : currentPage;
+            }
+        })
         res.send(detailed_res.data);
     } catch (error) {
         console.error(error);
         res.status(500).send('Error fetching data from Solax API');
     }
 })
+
+// solis
+const baseURL_solis = process.env.baseURL_solis;
+const inverter_endpoint = process.env.inverter_endpoint;
+const collector_endpoint = process.env.collector_endpoint;
+const key = process.env.key;
+const keySecret = process.env.keySecret;
+
 app.get('/fetch_solis_data_daily', async (req, res) => {
     try {
         const body = JSON.stringify({
