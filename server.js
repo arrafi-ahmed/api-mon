@@ -13,11 +13,11 @@ const keySecret = process.env.keySecret;
 
 app.get('/fetch_solax_data_daily', async (req, res) => {
     try {
-        const data = await axios.get('https://www.solaxcloud.com/proxyApp/proxy/api/getComprehensiveInfo.do?tokenId=20240212195932736804090&current=1')
-        res.send(data);
+        const detailed_data = await axios.get('https://www.solaxcloud.com/proxyApp/proxy/api/getComprehensiveInfo.do?tokenId=20240212195932736804090&current=1')
+        res.send(detailed_data);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Error fetching data from Solis API');
+        res.status(500).send('Error fetching data from Solax API');
     }
 })
 app.get('/fetch_solis_data_daily', async (req, res) => {
