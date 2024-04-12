@@ -19,8 +19,7 @@ app.get('/fetch_solax_data_daily/:query_date?', async (req, res) => {
 
     if (isNaN(today.getTime())) console.error('invalid date=', today, ' | query=', req.params.query_date)
     else today = today.toISOString().slice(0, 10);
-    // console.log(2, req.params.query_date)
-    console.log(3, today)
+
     do {
         try {
             const response = await axios.get(baseURL_solax + sites_list_endpoint, {
@@ -102,7 +101,6 @@ app.get('/fetch_solax_data_daily/:query_date?', async (req, res) => {
         current_page++;
     } while (current_page <= total_page);
 
-    console.log(4, resultData)
     res.send(resultData);
 });
 
