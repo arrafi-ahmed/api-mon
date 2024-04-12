@@ -11,12 +11,16 @@ const site_endpoint = process.env.site_endpoint;
 const api_key_solax = process.env.api_key_solax;
 const currentPage = 1;
 
-app.get('/fetch_solax_data_daily', async (req, res) => {
+app.get('/fetch_solax_data_daily/:query_date?', async (req, res) => {
     let current_page = 1;
     let total_page = 1;
-    const today = new Date(req.query.t).toISOString().slice(0, 10); // Get today's date in YYYY-MM-DD format
     const resultData = [];
+    let today = req.params.query_date ? new Date(req.params.query_date) : new Date();
 
+    if (isNaN(today.getTime())) console.error('invalid date=', today, ' | query=', req.params.query_date)
+    else today = today.toISOString().slice(0, 10);
+    // console.log(2, req.params.query_date)
+    console.log(3, today)
     do {
         try {
             const response = await axios.get(baseURL_solax + sites_list_endpoint, {
@@ -42,24 +46,49 @@ app.get('/fetch_solax_data_daily', async (req, res) => {
                         const single_site_data = response_single_site_data.data;
                         
                         if (response_single_site_data.status === 200) {
-                            const is_updated_today = new Date(single_site_data.result.uploadTime).toISOString().slice(0, 10) === today;
-                            const data_to_insert = {
-                                inverter_id: site.inverterSN,
-                                site_id: site.sn,
-                                site_count: data.result.invTotal,
-                                name: site.siteName,
-                                address: site.siteName,
-                                city: site.city,
-                                country: site.country,
-                                total_capacity: is_updated_today ? single_site_data.result.ratedPower : 0,
-                                prod_now: is_updated_today ? single_site_data.result.acpower : 0,
-                                prod_today: is_updated_today ? single_site_data.result.yieldtoday : 0,
-                                prod_this_month: is_updated_today ? single_site_data.result.yieldtoday : 0,
-                                annual_energy_prod: is_updated_today ? single_site_data.result.yieldtoday : 0,
-                                created_at: today
-                            };
+                            // sometimes array, sometimes single object
 
-                            resultData.push(data_to_insert);
+                            if (Array.isArray(single_site_data.result)){
+                                single_site_data.result.forEach((single_site_data_item)=>{
+                                    const is_updated_today = new Date(single_site_data_item.uploadTime).toISOString().slice(0, 10) === today;
+                                    const data_to_insert = {
+                                        inverter_id: site.inverterSN,
+                                        site_id: site.sn,
+                                        site_count: data.result.invTotal,
+                                        name: site.siteName,
+                                        address: site.siteName,
+                                        city: site.city,
+                                        country: site.country,
+                                        total_capacity: is_updated_today ? single_site_data_item.ratedPower : 0,
+                                        prod_now: is_updated_today ? single_site_data_item.acpower : 0,
+                                        prod_today: is_updated_today ? single_site_data_item.yieldtoday : 0,
+                                        prod_this_month: is_updated_today ? single_site_data_item.yieldtoday : 0,
+                                        annual_energy_prod: is_updated_today ? single_site_data_item.yieldtoday : 0,
+                                        created_at: today
+                                    };
+                                    resultData.push(data_to_insert);
+                                })
+                            } else{
+                                const is_updated_today = new Date(single_site_data.result.uploadTime).toISOString().slice(0, 10) === today;
+                                const data_to_insert = {
+                                    inverter_id: site.inverterSN,
+                                    site_id: site.sn,
+                                    site_count: data.result.invTotal,
+                                    name: site.siteName,
+                                    address: site.siteName,
+                                    city: site.city,
+                                    country: site.country,
+                                    total_capacity: is_updated_today ? single_site_data.result.ratedPower : 0,
+                                    prod_now: is_updated_today ? single_site_data.result.acpower : 0,
+                                    prod_today: is_updated_today ? single_site_data.result.yieldtoday : 0,
+                                    prod_this_month: is_updated_today ? single_site_data.result.yieldtoday : 0,
+                                    annual_energy_prod: is_updated_today ? single_site_data.result.yieldtoday : 0,
+                                    created_at: today
+                                };
+
+                                resultData.push(data_to_insert);
+                            }
+
                         }
                     } catch (error) {
                         console.error('Error fetching single site data:', error);
@@ -73,6 +102,7 @@ app.get('/fetch_solax_data_daily', async (req, res) => {
         current_page++;
     } while (current_page <= total_page);
 
+    console.log(4, resultData)
     res.send(resultData);
 });
 
