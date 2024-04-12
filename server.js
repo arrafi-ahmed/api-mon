@@ -5,31 +5,17 @@ const crypto = require('crypto');
 
 const app = express();
 // solax
-const baseURL_solax = 'https://www.solaxcloud.com/proxyApp/proxy/api';
-const sites_list_endpoint = '/getComprehensiveInfo.do'
-const site_endpoint = '/getRealtimeInfo.do';
-const api_key_solax = '20240212195932736804090';
+const baseURL_solax = process.env.baseURL_solis;
+const sites_list_endpoint = process.env.sites_list_endpoint
+const site_endpoint = process.env.site_endpoint;
+const api_key_solax = process.env.api_key_solax;
 const currentPage = 1;
 
-// app.get('/fetch_solax_data_daily', async (req, res) => {
-//     console.error('query=' + JSON.stringify(req.query))
-//     try {
-//         const detailed_res = await axios.get(baseURL_solax + sites_list_endpoint, {
-//             params: {
-//                 tokenId: api_key_solax,
-//                 current: req.query.current ? req.query.current : currentPage,
-//             }
-//         })
-//         res.send(detailed_res.data);
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send('Error fetching data from Solax API');
-//     }
-// })
 app.get('/fetch_solax_data_daily', async (req, res) => {
+    console.log(req.query.t)
     let current_page = 1;
     let total_page = 1;
-    const today = new Date().toISOString().slice(0, 10); // Get today's date in YYYY-MM-DD format
+    const today = new Date(req.query.t).toISOString().slice(0, 10); // Get today's date in YYYY-MM-DD format
     const resultData = [];
 
     do {
@@ -55,7 +41,8 @@ app.get('/fetch_solax_data_daily', async (req, res) => {
                         });
 
                         const single_site_data = response_single_site_data.data;
-
+                        console.error('single_site_data=', JSON.stringify(single_site_data))
+                        
                         if (response_single_site_data.status === 200) {
                             const is_updated_today = new Date(single_site_data.result.uploadTime).toISOString().slice(0, 10) === today;
                             const data_to_insert = {
@@ -75,15 +62,6 @@ app.get('/fetch_solax_data_daily', async (req, res) => {
                             };
 
                             resultData.push(data_to_insert);
-                            // const additional_data = calculateAdditionalSolaxData(); // Call your helper function to calculate additional data
-                            // if (additional_data[site.inverterSN]) {
-                            //     const foundData = additional_data[site.inverterSN];
-                            //     data_to_insert.prod_this_month += foundData.prod_this_month;
-                            //     data_to_insert.annual_energy_prod += foundData.annual_energy_prod;
-                            // }
-                            //
-                            // // Insert or update data in your database
-                            // // You need to implement this part according to your database setup
                         }
                     } catch (error) {
                         console.error('Error fetching single site data:', error);
