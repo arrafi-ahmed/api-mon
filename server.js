@@ -5,7 +5,7 @@ const crypto = require('crypto');
 
 const app = express();
 // solax
-const baseURL_solax = process.env.baseURL_solis;
+const baseURL_solax = process.env.baseURL_solax;
 const sites_list_endpoint = process.env.sites_list_endpoint
 const site_endpoint = process.env.site_endpoint;
 const api_key_solax = process.env.api_key_solax;
@@ -40,7 +40,6 @@ app.get('/fetch_solax_data_daily', async (req, res) => {
                         });
 
                         const single_site_data = response_single_site_data.data;
-                        console.error('single_site_data=', JSON.stringify(single_site_data))
                         
                         if (response_single_site_data.status === 200) {
                             const is_updated_today = new Date(single_site_data.result.uploadTime).toISOString().slice(0, 10) === today;
