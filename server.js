@@ -12,7 +12,6 @@ const api_key_solax = process.env.api_key_solax;
 const currentPage = 1;
 
 app.get('/fetch_solax_data_daily', async (req, res) => {
-    console.log(req.query.t)
     let current_page = 1;
     let total_page = 1;
     const today = new Date(req.query.t).toISOString().slice(0, 10); // Get today's date in YYYY-MM-DD format
